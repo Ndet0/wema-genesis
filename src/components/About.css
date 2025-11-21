@@ -1,77 +1,427 @@
-/* About component styles for Charity Foundation Theme */
+/* About Section Styles */
 
-.about-section {
-  background-color: #ffffff;
-  color: #000000;
-  padding: 2rem;
-  border-radius: 8px;
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.about-container h2 {
-  color: #008000;
+.about-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-2xl);
 }
 
-.about-content {
+.about-header h2 {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.about-header p {
+  font-size: 1.1rem;
+  color: var(--text-light);
+}
+
+/* Mission & Vision Cards */
+.mission-vision {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.mission-card, .vision-card {
+  padding: var(--spacing-2xl);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, transparent 100%);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(46, 204, 113, 0.2);
+  transition: all var(--transition-base);
+}
+
+.mission-card:hover, .vision-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, transparent 100%);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-lg);
+  display: inline-block;
+}
+
+.mission-card h3, .vision-card h3 {
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.mission-card p, .vision-card p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-light);
+}
+
+/* Impact Stats Section */
+.impact-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.impact-section h3 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--bg-white);
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+  display: inline-block;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.95rem;
+  opacity: 0.95;
+  display: block;
+}
+
+/* Story Section */
+.story-section {
+  background-color: var(--bg-light);
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.story-section h3 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.story-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.story-content p {
+  font-size: 1.05rem;
+  line-height: 2;
+  color: var(--text-light);
+  margin-bottom: var(--spacing-lg);
+  text-align: justify;
+}
+
+.story-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Values Section */
+.values-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.values-section h3 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.value-card {
+  padding: var(--spacing-2xl);
+  background-color: var(--bg-white);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-align: center;
+  min-height: 200px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
 }
 
-.about-mission, .about-story, .about-impact, .about-values {
-  padding: 1rem;
-  border-left: 4px solid #008000;
-  background-color: #f9f9f9;
+.value-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-5px);
 }
 
-.about-mission h3, .about-story h3, .about-impact h3, .about-values h3 {
-  color: #008000;
-  margin-bottom: 1rem;
+.value-card.expanded {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, transparent 100%);
+  border-color: var(--primary);
 }
 
-.impact-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
+.value-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
 }
 
-.stat {
-  text-align: center;
-  padding: 1rem;
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  border: 1px solid #000000;
+.value-card h4 {
+  font-size: 1.25rem;
+  color: var(--primary);
+  margin-bottom: var(--spacing-md);
 }
 
-.stat h4 {
-  color: #008000;
-  font-size: 2rem;
+.value-card p {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.6;
   margin: 0;
 }
 
-.stat p {
-  margin: 0.5rem 0 0 0;
+/* Team Section */
+.team-section {
+  background-color: var(--bg-light);
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-2xl);
 }
 
-.about-values ul {
-  list-style-type: disc;
-  padding-left: 1.5rem;
+.team-section h3 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: var(--spacing-md);
 }
 
-.about-values li {
-  margin-bottom: 0.5rem;
+.team-intro {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-light);
+  margin-bottom: var(--spacing-2xl);
 }
 
-.about-values strong {
-  color: #008000;
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
 }
 
+.team-member {
+  background-color: var(--bg-white);
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  border: 1px solid transparent;
+}
+
+.team-member:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.member-avatar {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-md);
+  display: inline-block;
+}
+
+.team-member h4 {
+  font-size: 1.2rem;
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-xs);
+}
+
+.member-role {
+  font-size: 0.95rem;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+}
+
+.member-bio {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* CTA Section */
+.about-cta {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--bg-white);
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.about-cta h3 {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--bg-white);
+}
+
+.about-cta p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: var(--spacing-lg);
+}
+
+.about-cta .btn-primary {
+  background-color: var(--bg-white);
+  color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.about-cta .btn-primary:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .about-section {
-    padding: 1rem;
+  .about-header h2 {
+    font-size: 2rem;
   }
-  .impact-stats {
+
+  .mission-vision {
     grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .stat-card {
+    padding: var(--spacing-lg);
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .story-section {
+    padding: var(--spacing-lg);
+  }
+
+  .story-content p {
+    font-size: 1rem;
+    line-height: 1.8;
+    text-align: left;
+  }
+
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .value-card {
+    min-height: auto;
+  }
+
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .about-cta {
+    padding: var(--spacing-lg);
+  }
+
+  .about-cta h3 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .mission-vision {
+    gap: var(--spacing-md);
+  }
+
+  .mission-card, .vision-card {
+    padding: var(--spacing-lg);
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .stat-card {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .stat-number {
+    font-size: 1.35rem;
+  }
+
+  .story-section {
+    padding: var(--spacing-lg) var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .values-section h3 {
+    font-size: 1.5rem;
+  }
+
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-member {
+    padding: var(--spacing-lg);
+  }
+
+  .member-avatar {
+    font-size: 3rem;
+  }
+
+  .about-cta {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .about-cta h3 {
+    font-size: 1.5rem;
   }
 }

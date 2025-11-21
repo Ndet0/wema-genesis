@@ -1,70 +1,39 @@
+import { useState, useEffect, useRef } from 'react';
 import './Header.css';
-import { useState, useEffect } from 'react';
 
-// Donation URLs for the select dropdown
-const DONATION_URLS = {
-  paypal: 'https://www.paypal.com',
-  stripe: 'https://www.stripe.com',
-};
+const NAV_LINKS = [
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'donation', label: 'Donate' },
+  { id: 'contact', label: 'Contact' },
+  { id: 'admin', label: 'Admin' },
+];
 
-// Header component: shows logo, navigation links and a mobile hamburger menu.
-// - Highlights the active section based on scroll position
-// - Provides a hamburger menu for small screens which toggles the nav
 function Header() {
-  // activeSection: which page section is currently active (home/about/projects/contact)
   const [activeSection, setActiveSection] = useState('home');
-  // social: value for the socials <select> control
-  const [social, setSocial] = useState('');
-  // isMenuOpen: whether the mobile slide-in menu is open
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const menuRef = useRef(null);
 
-  // Opens the selected social/donation link in a new tab
-  const handleSocialChange = (e) => {
-    const url = e.target.value;
-    if (url) window.open(url, '_blank');
-    setSocial(''); // Reset dropdown after selection
-  };
-
-  // Close menu when a nav link is clicked (used on mobile)
-  const handleNavClick = () => {
-    setIsMenuOpen(false);
-  };
-
-  // Helper to render nav links consistently
-  const renderNavLink = (href, label, sectionId) => (
-    <li>
-      <a
-        href={href}
-        className={activeSection === sectionId ? 'active' : ''}
-        onClick={() => {
-          setActiveSection(sectionId);
-          handleNavClick();
-        }}
-      >
-        {label}
-      </a>
-    </li>
-  );
-
-  // Detect which section is currently visible and update activeSection.
-  // This uses window.scrollY and the DOM to find section positions. It runs
-  // on scroll and updates the highlighted link in the nav. The offset (-120)
-  // accounts for the fixed header height so the correct section becomes active
-  // when it appears below the header.
+  // Handle scroll detection for active section
   useEffect(() => {
     const handleScroll = () => {
+      // Add shadow when scrolled
+      setScrolled(window.scrollY > 10);
+
+      // Detect active section
       const sections = document.querySelectorAll('section');
       let current = 'home';
 
       sections.forEach((section) => {
-        const sectionTop = section.offsetTop - 120; // offset for header height
+        const sectionTop = section.offsetTop - 120;
         const sectionHeight = section.offsetHeight;
+        
         if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
           current = section.getAttribute('id');
         }
       });
 
-      // If near the top, mark "home" as active
       if (window.scrollY < 100) {
         current = 'home';
       }
@@ -72,48 +41,133 @@ function Header() {
       setActiveSection(current);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isMenuOpen]);
+
+  // Close menu when escape key is pressed
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isMenuOpen]);
+
+  const handleNavClick = (sectionId) => {
+    setActiveSection(sectionId);
+    setIsMenuOpen(false);
+
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleDonateClick = () => {
+    handleNavClick('donation');
+  };
+
   return (
-    <header className="header">
-      <h1 className="logo">WEMA</h1>
+    <header className={`header ${scrolled ? 'scrolled' : ''}`}>
+      <div className="header-container">
+        {/* Logo */}
+        <div className="logo-section">
+          <button
+            className="logo"
+            onClick={() => handleNavClick('home')}
+            aria-label="WEMA Charity Foundation Home"
+          >
+            <span className="logo-icon">♥</span>
+            <span className="logo-text">WEMA</span>
+          </button>
+        </div>
 
-      {/* Hamburger menu button: visible on small screens only (CSS controls visibility) */}
-      <button
-        className={`hamburger ${isMenuOpen ? 'active' : ''}`}
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        aria-label="Toggle navigation menu"
+        {/* Desktop Navigation */}
+        <nav className="nav-desktop">
+          <ul className="nav-links">
+            {NAV_LINKS.map((link) => (
+              <li key={link.id}>
+                <button
+                  className={`nav-link ${activeSection === link.id ? 'active' : ''}`}
+                  onClick={() => handleNavClick(link.id)}
+                >
+                  {link.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* CTA Button */}
+        <div className="cta-section">
+          <button className="btn-donate-header" onClick={handleDonateClick}>
+            Donate
+          </button>
+        </div>
+
+        {/* Hamburger Menu */}
+        <button
+          className={`hamburger ${isMenuOpen ? 'active' : ''}`}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={isMenuOpen}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      {/* Mobile Navigation */}
+      <nav
+        ref={menuRef}
+        className={`nav-mobile ${isMenuOpen ? 'open' : ''}`}
+        role="navigation"
       >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      {/* Navigation. When isMenuOpen is true the CSS 'open' class slides the menu in on mobile */}
-      <nav className={`nav ${isMenuOpen ? 'open' : ''}`}>
-        <ul className="nav-links">
-          {renderNavLink('#home', 'Home', 'home')}
-          {renderNavLink('#about', 'About', 'about')}
-          {renderNavLink('#donation', 'Donate', 'donation')}
-          {renderNavLink('#contact', 'Contact', 'contact')}
-          {renderNavLink('#admin', 'Admin', 'admin')}
-          <li className="nav-right-item">
-            <select
-              className="donate-select"
-              value={social}
-              onChange={handleSocialChange}
-              aria-label="Select donation method"
+        <ul className="mobile-nav-links">
+          {NAV_LINKS.map((link) => (
+            <li key={link.id}>
+              <button
+                className={`mobile-nav-link ${activeSection === link.id ? 'active' : ''}`}
+                onClick={() => handleNavClick(link.id)}
+              >
+                {link.label}
+              </button>
+            </li>
+          ))}
+          <li className="mobile-donate-btn-wrapper">
+            <button
+              className="btn-donate-mobile"
+              onClick={handleDonateClick}
             >
-              <option value="">Quick Donate</option>
-              <option value="https://www.paypal.com">PayPal</option>
-              <option value="https://www.stripe.com">Debit or Credit Card</option>
-              <option value="https://www.stripe.com">Stripe</option>
-            </select>
+              💚 Donate Now
+            </button>
           </li>
         </ul>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && <div className="nav-overlay" onClick={() => setIsMenuOpen(false)} />}
     </header>
   );
 }
