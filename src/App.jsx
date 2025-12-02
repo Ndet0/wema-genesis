@@ -1,13 +1,13 @@
 import { lazy, Suspense } from 'react';
-import Header from './components/Header';
-import Home from './components/Home';
+import Header from './components/layout/Header';
+import Home from './pages/Home';
 import './App.css';
 
-// Lazy load components for better performance
-const About = lazy(() => import('./components/About'));
-const Donation = lazy(() => import('./components/Donation'));
-const Contact = lazy(() => import('./components/Contact'));
-const Admin = lazy(() => import('./components/Admin'));
+// Lazy load page components
+const About = lazy(() => import('./pages/About'));
+const Donation = lazy(() => import('./pages/Donation'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Admin = lazy(() => import('./pages/Admin'));
 
 // Loading fallback component
 const LoadingFallback = () => (

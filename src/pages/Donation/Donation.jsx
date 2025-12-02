@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-import PayPalButton from './PayPalButton';
+import PayPalButton from '../../components/features/Donation/PayPalButton';
 import './Donation.css';
 
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || '';
