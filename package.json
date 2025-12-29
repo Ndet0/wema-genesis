@@ -12,13 +12,20 @@
   },
   "dependencies": {
     "@paypal/react-paypal-js": "^8.9.2",
-    "@stripe/stripe-js": "^8.5.1",
+    "@stripe/stripe-js": "^8.6.0",
+    "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.0.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "express-rate-limit": "^7.0.0",
+    "react-router-dom": "^7.11.0",
     "stripe": "^19.3.1"
   },
   "devDependencies": {

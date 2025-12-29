@@ -1,76 +1,84 @@
-// server.js
-import express from "express";
-import Stripe from "stripe";
-import dotenv from "dotenv";
-import cors from "cors";
-import rateLimit from "express-rate-limit";
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import Stripe from 'stripe';
+// server/server.js additions
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+
+app.use(helmet());
+app.use(mongoSanitize());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use('/api/', limiter);
 
 dotenv.config();
 
 const app = express();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors({
+  origin: process.env.VITE_FRONTEND_ORIGIN || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
-// allow requests from your Vite dev server (adjust if you host elsewhere)
-const FRONTEND_ORIGIN = process.env.VITE_FRONTEND_ORIGIN || "http://localhost:5173";
-app.use(
-  cors({
-    origin: [FRONTEND_ORIGIN, "http://localhost:5173"],
-  })
-);
-
-// Rate limiter to protect public endpoints (tunable)
-const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 20, // limit each IP to 20 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Validate environment
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.error("Missing STRIPE_SECRET_KEY in environment. Exiting.");
-  process.exit(1);
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-// Create checkout session for Stripe Checkout
-// Apply rate limiter to the checkout session endpoint
-app.use("/create-checkout-session", apiLimiter);
-
-app.post("/create-checkout-session", async (req, res) => {
-  const { amount } = req.body;
-
-  if (!amount || isNaN(amount) || Number(amount) <= 0) {
-    return res.status(400).json({ error: "Invalid amount provided" });
-  }
-
+// Stripe checkout session
+app.post('/api/create-checkout-session', async (req, res) => {
   try {
+    const { amount, currency = 'usd' } = req.body;
+
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "Charity Donation",
-            },
-            unit_amount: Math.round(Number(amount) * 100),
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency,
+          product_data: {
+            name: 'Donation to WEMA Charity',
           },
-          quantity: 1,
+          unit_amount: amount * 100, // Convert to cents
         },
-      ],
-      mode: "payment",
-      success_url: `${process.env.VITE_FRONTEND_ORIGIN || "http://localhost:5173"}/success`,
-      cancel_url: `${process.env.VITE_FRONTEND_ORIGIN || "http://localhost:5173"}/cancel`,
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${process.env.VITE_FRONTEND_ORIGIN}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.VITE_FRONTEND_ORIGIN}/cancel`,
     });
 
-    res.json({ id: session.id });
+    res.json({ sessionId: session.id });
   } catch (error) {
-    console.error("Stripe session creation error:", error);
-    res.status(500).json({ error: "Failed to create checkout session" });
+    console.error('Stripe error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+// Contact form submission
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, phone, subject, message } = req.body;
+    
+    // TODO: Add email service (SendGrid, Mailgun, etc.)
+    // TODO: Save to database
+    console.log('Contact form submission:', { name, email, phone, subject, message });
+    
+    res.json({ success: true, message: 'Thank you for contacting us!' });
+  } catch (error) {
+    console.error('Contact form error:', error);
+    res.status(500).json({ error: 'Failed to submit form' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});
