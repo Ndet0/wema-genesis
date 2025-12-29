@@ -96,43 +96,6 @@
   text-decoration: underline;
 }
 
-/* Social Section */
-.social-section {
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--border-color);
-}
-
-.social-section h4 {
-  margin-bottom: var(--spacing-md);
-}
-
-.social-links {
-  display: flex;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
-}
-
-.social-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  border-radius: var(--radius-md);
-  background-color: var(--bg-white);
-  border: 2px solid var(--border-color);
-  font-size: 1.5rem;
-  transition: all var(--transition-base);
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.social-link:hover {
-  border-color: var(--primary);
-  background-color: rgba(46, 204, 113, 0.1);
-  transform: translateY(-3px);
-}
-
 /* Contact Form */
 .contact-form {
   background-color: var(--bg-white);

@@ -5,19 +5,19 @@ const CONTACT_INFO = [
   {
     icon: '✉️',
     title: 'Email',
-    value: 'info@wemacharity.org',
+    value: 'festusndet00@gmail.com',
     link: 'mailto:info@wemacharity.org',
   },
   {
     icon: '📱',
     title: 'Phone',
-    value: '+1 (234) 567-890',
-    link: 'tel:+1234567890',
+    value: '+254 708 962 331',
+    link: 'tel:+254708962331',
   },
   {
     icon: '📍',
     title: 'Office Address',
-    value: '123 Charity Lane, Nairobi, Kenya 00100',
+    value: 'Moi Avenue , Nairobi, Kenya 00100',
     link: null,
   },
   {
@@ -132,25 +132,6 @@ function Contact() {
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Social Media */}
-            <div className="social-section">
-              <h4>Follow Us</h4>
-              <div className="social-links">
-                <a href="#facebook" aria-label="Facebook" className="social-link">
-                  👍
-                </a>
-                <a href="#twitter" aria-label="Twitter" className="social-link">
-                  🐦
-                </a>
-                <a href="#instagram" aria-label="Instagram" className="social-link">
-                  📷
-                </a>
-                <a href="#linkedin" aria-label="LinkedIn" className="social-link">
-                  🔗
-                </a>
-              </div>
             </div>
           </div>
 
