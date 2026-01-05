@@ -2,13 +2,23 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
-// server/server.js additions
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import mongoSanitize from 'express-mongo-sanitize';
+// REMOVE this line temporarily
+// import mongoSanitize from 'express-mongo-sanitize';
 
+// Load environment variables FIRST
+dotenv.config();
+
+// Initialize Express app SECOND
+const app = express();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const PORT = process.env.PORT || 5000;
+
+// NOW you can use app with middleware
 app.use(helmet());
-app.use(mongoSanitize());
+// REMOVE this line temporarily
+// app.use(mongoSanitize());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -16,13 +26,7 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-dotenv.config();
-
-const app = express();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const PORT = process.env.PORT || 5000;
-
-// Middleware
+// CORS and body parser
 app.use(cors({
   origin: process.env.VITE_FRONTEND_ORIGIN || 'http://localhost:5173',
   credentials: true
@@ -81,4 +85,5 @@ app.post('/api/contact', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`🔗 Frontend: ${process.env.VITE_FRONTEND_ORIGIN}`);
 });
