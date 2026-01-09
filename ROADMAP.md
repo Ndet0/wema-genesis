@@ -1,168 +1,114 @@
-# WEMA Project Roadmap
+#  🧩 WEMA PROJECT – FULL ALIGNMENT PLAN
 
-This roadmap lays out a phased plan to improve the WEMA codebase (security, reliability, DX, testing, and production readiness). Each phase has concrete tasks, estimated time, acceptance criteria, and suggested files/places to change.
+(Frontend + Backend + CLI, Stripe-only, no Mongo)
 
----
+The Big Picture (what we’re building toward)
+React Frontend  ──┐
+                  ├──> Wema API (Express + Stripe)
+Python CLI    ────┘
 
-## Overview / Goals
-- Secure payment handling (server-side verification + webhooks).
-- Solid developer experience (linting, formatting, single dev command, docs).
-- CI and testing (unit + basic e2e for donation flow).
-- Safe incremental migration to stronger types (optional: TypeScript).
-- Production readiness: monitoring, logging, rate-limiting, hardened CORS, secrets management.
 
----
+Single source of truth: Stripe
 
-## Phase 0 — Immediate (0–2 days)
-Goals: Prevent accidental secret commits and add a compact, actionable checklist.
+No database
 
-Tasks:
-- Ensure environment files are ignored by git.
-  - Files: `.gitignore` (done)
-  - Acceptance: `.env` and `.env.*` present in `.gitignore`
-- Add `.env.example` with placeholder keys and README note.
-  - Files: `.env.example`, `README.md` (update section)
-  - Acceptance: Example file contains placeholders for required vars (STRIPE_SECRET_KEY, VITE_STRIPE_PUBLIC_KEY, VITE_PAYPAL_CLIENT_ID, PORT, VITE_FRONTEND_ORIGIN)
+Backend = contract
 
-Quick wins implemented in this phase:
-- Add `.env` exclusion to `.gitignore` (done)
-- Create `.env.example` (recommended next step)
+Frontend & CLI = clients
 
----
+#  ✅ PHASE 1 — Backend Audit & Cleanup (STARTING NOW)
+🚨 Current problems (from your tree)
 
-## Phase 1 — Safety & Payment Correctness (1–2 weeks)
-Goals: Ensure payments are verified and server endpoints are hardened.
+Your backend still has Mongo-era artifacts:
 
-Tasks:
-1. Implement Stripe webhook endpoint and verification
-   - Files: `server/server.js` (or `server/routes/webhooks.js`)
-   - Details: Add route to receive Stripe events, verify signature with `STRIPE_WEBHOOK_SECRET`, handle `checkout.session.completed` to record payments.
-   - Acceptance: A webhook route exists and validates Stripe signatures; test using `stripe CLI` or `ngrok` in dev.
+server/
+├── models/Donation.js        ❌ Mongo
+├── middleware/auth.js        ❌ DB-based auth assumption
+├── controllers/donationController.js ❌ likely Mongo
+├── routes/donations.js       ❌ Mongo
 
-2. Harden payment endpoints
-   - Add input validation (amount types), more detailed JSON errors.
-   - Add rate limiting (e.g., `express-rate-limit`) on `/create-checkout-session` and other public endpoints.
-   - Add basic request logging (request id, timestamp) and structured error responses.
 
-3. Tighten CORS configuration
-   - Use `VITE_FRONTEND_ORIGIN` only; no multiple origins in production.
+But your server.js already says:
 
-4. Secrets validation on startup
-   - Validate presence of critical env vars (`STRIPE_SECRET_KEY`, `VITE_PAYPAL_CLIENT_ID`) and log a clear startup error.
+“No MongoDB”
 
----
+So we must make the code tell the same story as the architecture.
 
-## Phase 2 — Developer Experience & CI (1–3 weeks)
-Goals: Improve DX with formatting, linting, single command to run both servers, and CI checks.
+#  🧹 Phase 1.1 — Files to DELETE (intentionally)
 
-Tasks:
-1. Lint & Formatter
-   - Add Prettier and `eslint-config-prettier`.
-   - Add `lint:fix` and `format` npm scripts.
-   - Files: `package.json`, `.eslintrc.cjs` or `eslint.config.js`, add `.prettierrc`.
+These should not exist anymore:
 
-2. Single dev command
-   - Add `concurrently` (or `npm-run-all`) script: `dev:all` to run Vite and Express in parallel.
-   - Files: `package.json`
+server/models/Donation.js
+server/middleware/auth.js   (for now)
 
-3. CI Workflow (GitHub Actions)
-   - Add workflow that runs: `npm ci`, `npm run lint`, `npm run build` (and tests when available).
-   - Files: `.github/workflows/ci.yml`
 
-4. Basic tests
-   - Add unit tests for server validation logic (e.g., amount validation) using Jest or Vitest (Vite-friendly).
-   - Add one integration test mocking Stripe responses for the `/create-checkout-session` endpoint.
+This is not “losing work” — this is removing the wrong abstraction.
 
-Acceptance criteria:
-- CI runs on PRs and fails on lint/build errors.
-- Devs can run both frontend+backend with `npm run dev:all`.
+#  🧠 Phase 1.2 — What the backend will do now
+Backend responsibilities (new truth)
+Endpoint	Responsibility
+POST /api/donations	Create Stripe checkout
+GET /api/donations	Fetch paid donations from Stripe
+POST /api/contact	Handle contact form
+GET /api/health	Health check
 
----
+👉 No persistence.
+👉 Stripe is the ledger.
 
-## Phase 3 — Robustness & Observability (2–6 weeks)
-Goals: Add logging, monitoring, persistent storage for donations, and admin improvements.
+#  🔧 Phase 1.3 — Refactor donations flow (core)
+✔ donationController.js (Stripe-only)
+✔ routes/donations.js (clean, no DB)
 
-Tasks:
-1. Logging & monitoring
-   - Add `pino` or `winston` for structured logs.
-   - Wire basic error reporting (Sentry or similar) in server (optional).
 
-2. Database integration
-   - Add a small DB (Postgres or Mongo). Create a `donations` table/collection to record events when webhooks confirm payment.
-   - Files: `server/db/*`, `server/models/donation.js` or TS equivalents.
+# 🔌 Phase 1.4 — server.js should only wire things
 
-3. Admin dashboard improvements
-   - Connect admin pages to DB read endpoints.
-   - Add pagination, CSV export for donations.
+#  ✅ PHASE 2 — Frontend ↔ Backend Alignment (Next)
+What I’ll check next:
 
-4. Production checklist
-   - Add health endpoint, graceful shutdown, env-specific config, CORS for production origin only.
+services/api/donations.js
 
-Acceptance criteria:
-- Payments are recorded server-side based on verified webhook events.
-- Admin can view recent donations from DB.
+DonationContext.js
 
----
+DonationForm.jsx
 
-## Phase 4 — Scale & Long Term (1–3 months)
-Goals: Type safety, performance improvements, E2E tests, infra & deployment.
+Stripe redirect handling
 
-Tasks:
-1. TypeScript migration (incremental)
-   - Start with server (small) or shared utils; add `tsconfig.json`, enable `allowJs` and gradually convert files.
+Success / Cancel pages
 
-2. E2E tests
-   - Add Playwright or Cypress tests for the donation flow using sandbox credentials.
+Goal:
 
-3. Bundle & performance
-   - Use Vite build reports and code-splitting for large libs; lazy-load PayPal/Stripe SDKs.
+Frontend ONLY calls /api/donations
 
-4. Deployment & infra
-   - Add Dockerfile(s), prepared deploy scripts, or use platforms (Vercel for frontend, Railway/Render for API).
-   - Add observability: logs, metrics, alerting.
+No Stripe logic in React
 
-Acceptance criteria:
-- Deterministic build + deployment procedure; E2E tests pass in CI; performance budgets established.
+Backend owns payments
 
----
+#  ✅ PHASE 3 — CLI ↔ Backend Contract Alignment
 
-## Risk & Blockers
-- Webhook setup needs a public endpoint (ngrok or deploy) and `STRIPE_WEBHOOK_SECRET` in env.
-- Migration to TypeScript is beneficial but non-trivial—plan incremental steps.
-- Payment flows require secure storage of secrets in deployment environment.
+Your CLI should:
 
----
+POST /api/donations → get checkoutUrl
 
-## Suggested File/Directory Conventions
-- `server/` for backend code. Example subfolders:
-  - `server/index.js` (or `server/server.js`) — app bootstrap
-  - `server/routes/` — route handlers (payments, webhooks, admin API)
-  - `server/services/` — payment service wrappers
-  - `server/db/` — DB client and models
-- `src/` for frontend code:
-  - `src/pages/` — route pages (Home, Donation, Success, Cancel, Admin)
-  - `src/components/` — shared components
-  - `src/services/` — api clients and SDK wrappers
-  - `src/hooks/` and `src/context/`
+GET /api/donations → list donations (admin-style)
 
----
+No DB.
+No migrations.
+No local state.
 
-## Rough Timeline / Estimates
-- Phase 0: 0–2 days
-- Phase 1: 1–2 weeks
-- Phase 2: 1–3 weeks
-- Phase 3: 2–6 weeks
-- Phase 4: 1–3 months
+I’ll align:
 
----
+payload shape
 
-## Next immediate actions I can take for you
-- Create `.env.example` with placeholders and add a README section.
-- Add a simple GitHub Actions CI config that runs lint and build.
-- Add `express-rate-limit` into `server/server.js` and small logging.
+error handling
 
-If you want, I can start implementing any of the above quick wins now — tell me which one.
+output UX
 
----
+#  ✅ PHASE 4 — Final Cleanup & Documentation
 
-_End of Roadmap_
+Remove dead files
+
+Add backend README
+
+Define API contract
+
+Ensure repo tells a coherent story

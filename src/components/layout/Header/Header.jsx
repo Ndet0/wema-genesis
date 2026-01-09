@@ -1,19 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
 
 const NAV_LINKS = [
-  { id: 'home', label: 'Home', ariaLabel: 'Navigate to home section' },
-  { id: 'about', label: 'About', ariaLabel: 'Navigate to about section' },
-  { id: 'donation', label: 'Donate', ariaLabel: 'Navigate to donation section' },
-  { id: 'contact', label: 'Contact', ariaLabel: 'Navigate to contact section' },
-  { id: 'admin', label: 'Admin', ariaLabel: 'Navigate to admin dashboard' },
+  { id: 'home', label: 'Home', path: '/', ariaLabel: 'Navigate to home' },
+  { id: 'about', label: 'About', path: '/about', ariaLabel: 'Navigate to about' },
+  { id: 'donation', label: 'Donate', path: '/donate', ariaLabel: 'Navigate to donation' },
+  { id: 'contact', label: 'Contact', path: '/contact', ariaLabel: 'Navigate to contact' },
+  { id: 'admin', label: 'Admin', path: '/admin', ariaLabel: 'Navigate to admin' },
 ];
 
 function Header() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [activeSection, setActiveSection] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const menuRef = useRef(null);
+
+  // Track current page/route
+  useEffect(() => {
+    const currentLink = NAV_LINKS.find(link => link.path === location.pathname);
+    if (currentLink) {
+      setActiveSection(currentLink.id);
+    }
+  }, [location.pathname]);
 
   // Combined scroll handler for performance
   useEffect(() => {
@@ -26,20 +37,6 @@ function Header() {
           
           // Update scrolled state
           setIsScrolled(scrollY > 10);
-          
-          // Update active section
-          if (scrollY < 100) {
-            setActiveSection('home');
-          } else {
-            const sections = document.querySelectorAll('section[id]');
-            for (const section of sections) {
-              const { top, height } = section.getBoundingClientRect();
-              if (top <= 120 && top + height > 120) {
-                setActiveSection(section.id);
-                break;
-              }
-            }
-          }
           
           ticking = false;
         });
@@ -82,12 +79,9 @@ function Header() {
     };
   }, [isMenuOpen]);
 
-  const scrollToSection = (sectionId) => {
+  const handleNavigation = (path) => {
     setIsMenuOpen(false);
-    setActiveSection(sectionId);
-    
-    const element = document.getElementById(sectionId);
-    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    navigate(path);
   };
 
   return (
@@ -96,7 +90,7 @@ function Header() {
         {/* Logo */}
         <button
           className={styles.logo}
-          onClick={() => scrollToSection('home')}
+          onClick={() => handleNavigation('/')}
           aria-label="WEMA Charity Foundation - Go to home"
         >
           <svg className={styles.logoIcon} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -112,7 +106,7 @@ function Header() {
               <li key={link.id}>
                 <button
                   className={`${styles.navLink} ${activeSection === link.id ? styles.active : ''}`}
-                  onClick={() => scrollToSection(link.id)}
+                  onClick={() => handleNavigation(link.path)}
                   aria-label={link.ariaLabel}
                   aria-current={activeSection === link.id ? 'page' : undefined}
                 >
@@ -126,7 +120,7 @@ function Header() {
         {/* CTA Button */}
         <button 
           className={styles.btnDonate} 
-          onClick={() => scrollToSection('donation')}
+          onClick={() => handleNavigation('/donate')}
           aria-label="Make a donation"
         >
           <svg className={styles.heartIcon} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -162,7 +156,7 @@ function Header() {
             <li key={link.id}>
               <button
                 className={`${styles.mobileNavLink} ${activeSection === link.id ? styles.active : ''}`}
-                onClick={() => scrollToSection(link.id)}
+                onClick={() => handleNavigation(link.path)}
                 aria-label={link.ariaLabel}
                 tabIndex={isMenuOpen ? 0 : -1}
               >
@@ -173,7 +167,7 @@ function Header() {
           <li className={styles.mobileDonateWrapper}>
             <button
               className={styles.btnDonateMobile}
-              onClick={() => scrollToSection('donation')}
+              onClick={() => handleNavigation('/donate')}
               aria-label="Make a donation"
               tabIndex={isMenuOpen ? 0 : -1}
             >

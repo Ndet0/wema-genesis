@@ -1,8 +1,10 @@
-export default function Success() {
+const Success = () => {
   return (
-    <div style={{ padding: 40 }}>
-      <h1>🎉 Thank You!</h1>
-      <p>Your donation was processed successfully.</p>
+    <div>
+      <h1>Thank you 💚</h1>
+      <p>Your donation was successful.</p>
     </div>
   );
-}
+};
+
+export default Success;

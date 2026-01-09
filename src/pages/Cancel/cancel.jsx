@@ -1,8 +1,10 @@
-export default function Cancel() {
+const Cancel = () => {
   return (
-    <div style={{ padding: 40 }}>
-      <h1>❌ Payment Cancelled</h1>
-      <p>Your donation was not completed.</p>
+    <div>
+      <h1>Donation cancelled</h1>
+      <p>No charges were made.</p>
     </div>
   );
-}
+};
+
+export default Cancel;

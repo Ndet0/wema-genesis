@@ -5,14 +5,14 @@ const CONTACT_INFO = [
   {
     icon: '✉️',
     title: 'Email',
-    value: 'festusndet00@gmail.com',
+    value: 'info@wema.org',
     link: 'mailto:info@wemacharity.org',
   },
   {
     icon: '📱',
     title: 'Phone',
-    value: '+254 708 962 331',
-    link: 'tel:+254708962331',
+    value: '+254 757 954 720',
+    link: 'tel:+254757954720',
   },
   {
     icon: '📍',
@@ -83,8 +83,16 @@ function Contact() {
     setErrorMessage('');
 
     try {
-      // Simulate API call - replace with actual backend endpoint
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const BACKEND = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const response = await fetch(`${BACKEND}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
       
       console.log('Form submitted:', formData);
       

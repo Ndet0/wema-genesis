@@ -151,22 +151,6 @@ function About() {
           </div>
         </div>
 
-        {/* Team */}
-        <div className="team-section">
-          <h3>Our Team</h3>
-          <p className="team-intro">Dedicated professionals committed to making a difference</p>
-          <div className="team-grid">
-            {TEAM_MEMBERS.map((member, index) => (
-              <div key={index} className="team-member">
-                <div className="member-avatar">{member.icon}</div>
-                <h4>{member.name}</h4>
-                <p className="member-role">{member.role}</p>
-                <p className="member-bio">{member.bio}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Call to Action */}
         <div className="about-cta">
           <h3>Join Our Mission</h3>

@@ -1,67 +1,26 @@
-import React, { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import PayPalButton from '../../components/features/Donation/PayPalButton';
-import './Donation.css';
-
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || '';
-const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
-const BACKEND = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+import React, { useState } from "react";
+import { useDonation } from "../../context/DonationContext.jsx";
+import PayPalButton from "../../components/features/Donation/PayPalButton";
+import "./Donation.css";
 
 const PRESET_AMOUNTS = [10, 25, 50, 100, 250];
 
 function Donation() {
-  const [amount, setAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState('');
+  const { donate, loading, error } = useDonation();
 
-  const handlePresetAmount = (preset) => {
-    setAmount(preset.toString());
-    setError('');
-  };
-
-  const handleStripeCheckout = async () => {
-    if (!amount || Number(amount) <= 0) {
-      setError('Please enter a valid donation amount.');
-      return;
-    }
-    if (!stripePromise) {
-      setError('Stripe is not configured. Please contact support.');
-      return;
-    }
-
-    setIsProcessing(true);
-    setError('');
-
-    try {
-      const stripe = await stripePromise;
-      const response = await fetch(`${BACKEND}/create-checkout-session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Number(amount) }),
-      });
-
-      if (!response.ok) {
-        const text = await response.text();
-        console.error('Create session failed:', text);
-        throw new Error('Failed to create payment session');
-      }
-
-      const session = await response.json();
-      const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
-      
-      if (error) {
-        setError(error.message || 'Payment redirect failed');
-      }
-    } catch (err) {
-      console.error('Stripe error:', err);
-      setError(err.message || 'An error occurred processing your donation');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  const [amount, setAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("stripe");
 
   const donationAmount = parseFloat(amount) || 0;
+
+  const handleDonate = () => {
+    if (!amount || donationAmount <= 0) return;
+
+    donate({
+      amount: donationAmount,
+      name: "Anonymous",
+    });
+  };
 
   return (
     <section id="donation" className="donation">
@@ -77,14 +36,14 @@ function Donation() {
           <div className="donation-form-wrapper">
             <div className="donation-method-selector">
               <button
-                className={`method-btn ${paymentMethod === 'stripe' ? 'active' : ''}`}
-                onClick={() => setPaymentMethod('stripe')}
+                className={`method-btn ${paymentMethod === "stripe" ? "active" : ""}`}
+                onClick={() => setPaymentMethod("stripe")}
               >
                 💳 Card
               </button>
               <button
-                className={`method-btn ${paymentMethod === 'paypal' ? 'active' : ''}`}
-                onClick={() => setPaymentMethod('paypal')}
+                className={`method-btn ${paymentMethod === "paypal" ? "active" : ""}`}
+                onClick={() => setPaymentMethod("paypal")}
               >
                 🅿️ PayPal
               </button>
@@ -101,6 +60,7 @@ function Donation() {
               <label htmlFor="amount" className="amount-label">
                 Donation Amount (USD)
               </label>
+
               <div className="amount-input-wrapper">
                 <span className="currency">$</span>
                 <input
@@ -110,10 +70,7 @@ function Donation() {
                   step="0.01"
                   placeholder="0.00"
                   value={amount}
-                  onChange={(e) => {
-                    setAmount(e.target.value);
-                    setError('');
-                  }}
+                  onChange={(e) => setAmount(e.target.value)}
                   className="amount-input"
                 />
               </div>
@@ -124,8 +81,10 @@ function Donation() {
                   {PRESET_AMOUNTS.map((preset) => (
                     <button
                       key={preset}
-                      className={`preset-btn ${amount === preset.toString() ? 'active' : ''}`}
-                      onClick={() => handlePresetAmount(preset)}
+                      className={`preset-btn ${
+                        amount === preset.toString() ? "active" : ""
+                      }`}
+                      onClick={() => setAmount(preset.toString())}
                     >
                       ${preset}
                     </button>
@@ -134,20 +93,15 @@ function Donation() {
               </div>
             </div>
 
-            {paymentMethod === 'stripe' ? (
+            {paymentMethod === "stripe" ? (
               <button
                 className="btn btn-donate"
-                onClick={handleStripeCheckout}
-                disabled={!amount || Number(amount) <= 0 || isProcessing}
+                onClick={handleDonate}
+                disabled={!amount || donationAmount <= 0 || loading}
               >
-                {isProcessing ? (
-                  <>
-                    <span className="spinner-mini"></span>
-                    Processing...
-                  </>
-                ) : (
-                  `Donate $${donationAmount.toFixed(2) || '0.00'}`
-                )}
+                {loading
+                  ? "Redirecting…"
+                  : `Donate $${donationAmount.toFixed(2)}`}
               </button>
             ) : (
               <div className="paypal-wrapper">
@@ -195,7 +149,9 @@ function Donation() {
 
             <div className="donation-faq">
               <h4>Frequently Asked</h4>
-              <p>All donations are tax-deductible. You'll receive a receipt immediately after completing your donation.</p>
+              <p>
+                All donations are tax-deductible. You'll receive a receipt immediately after completing your donation.
+              </p>
             </div>
           </div>
         </div>

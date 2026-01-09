@@ -1,4 +1,4 @@
-// src/PayPalButton.jsx
+// src/components/features/Donation/PayPalButton.jsx
 import React from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
